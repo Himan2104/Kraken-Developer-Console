@@ -4,8 +4,17 @@
  ---
 
 ## Installation
- - Grab the package from the releases section of this repo.
- - Import it into your project as you would any normal unity package.
+### Using git url
+ - Get the git url of this repository
+ - Open package manager in unity
+ - Click on "+" icon on top left and select "Add package from git url"
+ - Paste and go
+### Using zip
+ - Download the zip file from the releases section.
+ - Open package manager in unity
+ - Click on "+" icon on top left and select "Add package from disk"
+ - Navigate to your downloads folder and select the zip file
+
 
 ## Usage
 
