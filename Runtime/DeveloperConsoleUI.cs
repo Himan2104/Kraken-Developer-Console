@@ -100,7 +100,7 @@ namespace Kraken.DevCon
             }
 
             _output.text += "<color=#" + color + ">" + conop.ToString() + "</color>\n";
-            GetComponentInChildren<ScrollRect>().verticalNormalizedPosition = 0;
+            DelayedScrollSnap();
         }
 
         /// <summary>
@@ -140,6 +140,16 @@ namespace Kraken.DevCon
         private void OnApplicationQuit()
         {
             if (_is_open) ToggleConsole();
+        }
+
+        /// <summary>
+        /// Scrolls to the bottom. Delayed cause it takes a certain amount of time for Content Size Fitter to adjust
+        /// </summary>
+        /// <param name="delay"></param>
+        private async void DelayedScrollSnap(int delay = 10)
+        {
+            await Task.Delay(delay);
+            GetComponentInChildren<ScrollRect>().verticalNormalizedPosition = 0;
         }
     }
 }
