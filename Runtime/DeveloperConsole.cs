@@ -165,8 +165,9 @@ namespace Kraken.DevCon
             if (_cvars.ContainsKey(substrings[0]))
             {
                 var cvar = _cvars[substrings[0]];
+                var old = cvar.value;
                 cvar.value = TypeDescriptor.GetConverter(cvar.value.GetType()).ConvertFromString(substrings[1]);
-                return new ConsoleOutput(ConsoleOutput.Type.INF, substrings[0] + " = " + cvar.value);
+                return new ConsoleOutput(ConsoleOutput.Type.INF, substrings[0] + " : " + old.ToString() + " -> " + cvar.value.ToString());
             }
 
             var cmd = _commands.Find(x => x.command == substrings[0]);
