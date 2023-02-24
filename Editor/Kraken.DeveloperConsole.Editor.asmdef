@@ -1,8 +1,9 @@
 {
-    "name": "kraken.developer-console",
+    "name": "Kraken.DeveloperConsole.Editor",
     "rootNamespace": "",
     "references": [
-        "GUID:6055be8ebefd69e48b49212b09b47b2f"
+        "GUID:6055be8ebefd69e48b49212b09b47b2f",
+        "GUID:676561273630e2c448002d1de6f2aa6a"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

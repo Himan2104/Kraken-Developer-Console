@@ -4,7 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-[assembly : InternalsVisibleTo("kraken.developer-console.Editor")]
+[assembly : InternalsVisibleTo("Kraken.DeveloperConsole.Editor")]
 
 namespace Kraken.DevCon
 {    
