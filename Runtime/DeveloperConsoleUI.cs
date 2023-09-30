@@ -109,7 +109,7 @@ namespace Kraken.DevCon
         internal void RefreshLogs()
         {
             _output.text = "";
-            foreach(var log in _console._console_logs)
+            foreach(var log in _console._consoleLogs)
             {
                 AppendLog(log);
             }

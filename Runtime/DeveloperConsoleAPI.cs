@@ -7,7 +7,7 @@ namespace Kraken.DevCon
         private static DeveloperConsole _con = null;
         private static DeveloperConsoleUI _ui = null;
 
-        private static float _time_scale = 1.0f;
+        private static float _timeScale = 1.0f;
 
         public static bool bIsInitialized
         {
@@ -45,12 +45,12 @@ namespace Kraken.DevCon
 
             if(!_ui._is_open)
             {
-                _time_scale = Time.timeScale;
+                _timeScale = Time.timeScale;
                 Time.timeScale = 0.0f;
             }
             else
             {
-                Time.timeScale = _time_scale;
+                Time.timeScale = _timeScale;
             }
             
             _ui.ToggleConsole();
@@ -72,8 +72,8 @@ namespace Kraken.DevCon
                 Debug.LogError("Console has not been created!");
                 return;
             }
-            _con._console_logs.Clear();
-            _con._console_log_buffer_size = buffer_size;
+            _con._consoleLogs.Clear();
+            _con._consoleLogBufferSize = buffer_size;
             _ui.RefreshLogs();
         }
 
@@ -126,7 +126,7 @@ namespace Kraken.DevCon
         public static void Flush()
         {
             _con.UpdateLogFile();
-            _con._console_logs.Clear();
+            _con._consoleLogs.Clear();
             _ui._output.text = "KRAKEN DEVELOPER CONSOLE\n.\n.\n.\n.\n.\n.\n.\n\nCreated By - Himanshu Parchand (himan2104@gmail.com)\n.\n.\n.\n.\n.\n.\n\nPlease read the documentation before using and leave a star on the repository if this helped you!\n.\n.\n.\n.\n.\n\n";
         }
     }

@@ -102,18 +102,15 @@ namespace Kraken.DevCon
 
         private List<ConsoleCommand> _commands = new List<ConsoleCommand>();
 
-        internal int _console_log_buffer_size = 100;
+        internal int _consoleLogBufferSize = 100;
 
-        internal List<ConsoleOutput> _console_logs = new List<ConsoleOutput>();
+        internal List<ConsoleOutput> _consoleLogs = new List<ConsoleOutput>();
 
-        internal int _cl_stat_wrns = 0;
-        internal int _cl_stat_errs = 0;
-
-        internal string _filename = string.Empty;
+        internal int _clStatWarnings = 0;
+        internal int _clStatErrors = 0;
 
         internal DeveloperConsole()
         {
-            _filename = "Kraken DevCon Log " + DateTime.Now.ToString("u");
             Application.quitting += OnApplicationQuit;
         }
 
@@ -182,15 +179,15 @@ namespace Kraken.DevCon
 
         internal ConsoleOutput Log(ConsoleOutput.Type type, string message)
         {
-            if(_console_logs.Count > _console_log_buffer_size)
+            if(_consoleLogs.Count > _consoleLogBufferSize)
             {
-                File.AppendAllTextAsync(Application.persistentDataPath+_filename, _console_logs[0].ToString() + "\n");
-                _console_logs.RemoveAt(0);
+                File.AppendAllTextAsync(Application.persistentDataPath + "Kraken_DevCon_Log_" + DateTime.Now.ToString("u"), _consoleLogs[0].ToString() + "\n");
+                _consoleLogs.RemoveAt(0);
             }
 
-            _console_logs.Add(new ConsoleOutput(type, message));
+            _consoleLogs.Add(new ConsoleOutput(type, message));
             
-            return _console_logs.Last();
+            return _consoleLogs.Last();
         }
 
         internal bool RegisterCommand(ConsoleCommand command)
@@ -202,9 +199,9 @@ namespace Kraken.DevCon
 
         internal void UpdateLogFile()
         {
-            foreach(var log in _console_logs)
+            foreach(var log in _consoleLogs)
             {
-                File.AppendAllTextAsync(Application.persistentDataPath + _filename, log.ToString() + "\n");
+                File.AppendAllTextAsync(Application.persistentDataPath + "Kraken_DevCon_Log_" + DateTime.Now.ToString("u"), log.ToString() + "\n");
             }
         }
     }
