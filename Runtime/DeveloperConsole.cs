@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -68,11 +69,13 @@ namespace Kraken.DevCon
     {
         public enum Type
         {
-            NUL, // Null/UnknownType
             ERR, // Error
-            INF, // Informative
-            WRN  // Warning
+            AST, // Assert
+            WRN, // Warning
+            INF, // Informative/Unknown
+            EXC  // Exception
         }
+
         public DateTime timeStamp;
         public Type type;
         public string message;
@@ -93,30 +96,75 @@ namespace Kraken.DevCon
         }
     }
 
+    public class ConsoleLogMetrics
+    {
+        private Dictionary<ConsoleOutput.Type, int> _metrics = new Dictionary<ConsoleOutput.Type, int>();
+
+        public ConsoleLogMetrics() 
+        {
+            foreach(var type in Enum.GetValues(typeof(ConsoleOutput.Type)).Cast<ConsoleOutput.Type>())
+            {
+                _metrics[type] = 0;
+            }
+        }
+
+        public int GetLogCount()
+        {
+            return _metrics.Values.Sum();
+        }
+
+        public int GetLogCount(ConsoleOutput.Type type)
+        {
+            return _metrics[type];
+        }
+
+        internal int this[ConsoleOutput.Type type]
+        {
+            get => _metrics[type];
+            set => _metrics[type] = value;
+        }
+    }
+
     /// <summary>
     /// Represents the runtime of dev console
     /// </summary>
     public class DeveloperConsole
     {
         private Dictionary<string, IConsoleVariable> _cvars = new Dictionary<string, IConsoleVariable>();
-
         private List<ConsoleCommand> _commands = new List<ConsoleCommand>();
+        private int _consoleLogBufferSize = 100;
+        private List<ConsoleOutput> _consoleLogs = new List<ConsoleOutput>();
+        private ConsoleLogMetrics _metrics = new ConsoleLogMetrics();
+        private UnityEvent<ConsoleOutput> _consoleLogged = new UnityEvent<ConsoleOutput>();
 
-        internal int _consoleLogBufferSize = 100;
+#if KRAKEN_ENABLE_LOG_FILE_GEN
+        private string _logfilePath = string.Empty;
+#endif
 
-        internal List<ConsoleOutput> _consoleLogs = new List<ConsoleOutput>();
-
-        internal int _clStatWarnings = 0;
-        internal int _clStatErrors = 0;
+        internal int LogBufferSize { get => _consoleLogBufferSize; set => _consoleLogBufferSize = value; }
+        internal List<ConsoleOutput> Logs  => _consoleLogs; 
+        internal ConsoleLogMetrics Metrics => _metrics;
+        internal UnityEvent<ConsoleOutput> OnConsoleLogged => _consoleLogged;
 
         internal DeveloperConsole()
         {
+            Application.logMessageReceived += InterceptDebugLogs;
             Application.quitting += OnApplicationQuit;
+
+#if KRAKEN_ENABLE_LOG_FILE_GEN
+            _logfilePath = Application.persistentDataPath + "/Kraken_DevCon_Log_" + DateTime.Now.ToString("'yyyy'_'MM'_'dd'_'HH'_'mm'_'ss'") + ".log";
+            File.Create(_logfilePath).Close();
+#endif
         }
 
-        private void OnApplicationQuit()
+        private void InterceptDebugLogs(string condition, string stackTrace, LogType type)
         {
-            UpdateLogFile();
+            Log((ConsoleOutput.Type)type, condition);
+        }
+
+        private async void OnApplicationQuit()
+        {
+            await Flush();
         }
 
         /// <summary>
@@ -152,42 +200,51 @@ namespace Kraken.DevCon
             return null;
         }
 
-        internal ConsoleOutput ProcessQuery(string query)
+        internal void ProcessQuery(string query)
         {
             var substrings = query.Split(" ");
 
-            if (substrings.Length == 0) 
-                return new ConsoleOutput(ConsoleOutput.Type.WRN, "Empty query submitted!");
+            if (substrings.Length == 0)
+            {
+                Log(ConsoleOutput.Type.WRN, "Empty query submitted!");
+                return;
+            }
 
             if (_cvars.ContainsKey(substrings[0]))
             {
                 var cvar = _cvars[substrings[0]];
                 var old = cvar.value;
                 cvar.value = TypeDescriptor.GetConverter(cvar.value.GetType()).ConvertFromString(substrings[1]);
-                return new ConsoleOutput(ConsoleOutput.Type.INF, substrings[0] + " : " + old.ToString() + " -> " + cvar.value.ToString());
+                Log(ConsoleOutput.Type.INF, substrings[0] + " : " + old.ToString() + " -> " + cvar.value.ToString());
+                return;
             }
 
             var cmd = _commands.Find(x => x.command == substrings[0]);
             if (cmd != null)
             {
                 var args = substrings.Skip(1).ToArray();
-                return cmd.ProcessCommand(args);
+                Log(cmd.ProcessCommand(args));
+                return;
             }
 
-            return new ConsoleOutput(ConsoleOutput.Type.WRN, "No suitable query or command found for \"" + query + "\"!");
+            Log(ConsoleOutput.Type.WRN, "No suitable query or command found for \"" + query + "\"!");
         }
 
-        internal ConsoleOutput Log(ConsoleOutput.Type type, string message)
+        internal void Log(ConsoleOutput.Type type, string message)
         {
-            if(_consoleLogs.Count > _consoleLogBufferSize)
+            Log(new ConsoleOutput(type, message));
+        }
+
+        internal async void Log(ConsoleOutput log) 
+        {
+            if (_consoleLogs.Count > _consoleLogBufferSize)
             {
-                File.AppendAllTextAsync(Application.persistentDataPath + "Kraken_DevCon_Log_" + DateTime.Now.ToString("u"), _consoleLogs[0].ToString() + "\n");
-                _consoleLogs.RemoveAt(0);
+                await Flush();
             }
 
-            _consoleLogs.Add(new ConsoleOutput(type, message));
-            
-            return _consoleLogs.Last();
+            _consoleLogs.Add(log);
+            _metrics[log.type]++;
+            OnConsoleLogged.Invoke(_consoleLogs.Last());
         }
 
         internal bool RegisterCommand(ConsoleCommand command)
@@ -197,12 +254,15 @@ namespace Kraken.DevCon
             return true;
         }
 
-        internal void UpdateLogFile()
+        internal async Task Flush()
         {
+#if KRAKEN_ENABLE_LOG_FILE_GEN
             foreach(var log in _consoleLogs)
             {
-                File.AppendAllTextAsync(Application.persistentDataPath + "Kraken_DevCon_Log_" + DateTime.Now.ToString("u"), log.ToString() + "\n");
+                await File.AppendAllTextAsync(_logfilePath, log.ToString() + "\n");
             }
+#endif
+            _consoleLogs.Clear();
         }
     }
 }
