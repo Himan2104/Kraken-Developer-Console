@@ -7,8 +7,8 @@ namespace Kraken.DevCon
 {
     public class DeveloperConsoleEditor : MonoBehaviour
     {
-        [MenuItem("Kraken/Developer Console/Create Console Object")]
-        static void CreateDeveloperConsole()
+        private const string generate_log_file_epkey = "kraken_enable_log_file";
+
         {
             //main canvas game object
             GameObject console = new GameObject("DeveloperConsole");
@@ -202,6 +202,38 @@ namespace Kraken.DevCon
             devconui._input = inputField;
             devconui._output_panel = outputPanel;
             devconui._input_panel = inputBox;
+        private static bool bShouldGenerateLogFile
+        {
+            get => EditorPrefs.GetBool(generate_log_file_epkey);
+            set => EditorPrefs.SetBool(generate_log_file_epkey, value);
+        }
+
+        [MenuItem("Kraken/Developer Console/Generate Log File", priority = 20)]
+        static void GenerateLogFile()
+        {
+            bShouldGenerateLogFile = !bShouldGenerateLogFile;
+
+            if (bShouldGenerateLogFile)
+            {
+                PlayerSettings.SetScriptingDefineSymbols(UnityEditor.Build.NamedBuildTarget.Standalone, "KRAKEN_ENABLE_LOG_FILE_GEN");
+            }
+            else
+            {
+                string[] defines;
+                PlayerSettings.GetScriptingDefineSymbols(UnityEditor.Build.NamedBuildTarget.Standalone, out defines);
+                var new_defines = defines.ToList().Where(x => !string.Equals(x, "KRAKEN_ENABLE_LOG_FILE_GEN")).ToArray();
+                if (new_defines.Length > 0)
+                {
+                    PlayerSettings.SetScriptingDefineSymbols(UnityEditor.Build.NamedBuildTarget.Standalone, new_defines);
+                }
+            }
+        }
+        
+        [MenuItem("Kraken/Developer Console/Generate Log File", true)]
+        static bool GenerateLogFileValidate()
+        {
+            Menu.SetChecked("Kraken/Developer Console/Generate Log File", bShouldGenerateLogFile);
+            return true;
         }
     }
 }
