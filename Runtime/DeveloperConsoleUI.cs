@@ -15,7 +15,8 @@ namespace Kraken.DevCon
         private DeveloperConsole _console;
         private Dictionary<ConsoleOutput.Type, string> _hexColorMap = new Dictionary<ConsoleOutput.Type, string>();
         private bool _isOpen = false;
-        
+        private float _timeScale = 1.0f;
+
         protected DeveloperConsole Console => _console;
         protected Dictionary<ConsoleOutput.Type, string> HexColorMap => _hexColorMap;
         internal bool bIsOpen => _isOpen; 
@@ -47,6 +48,20 @@ namespace Kraken.DevCon
         internal void ToggleConsole()
         {
             _isOpen = !_isOpen;
+
+            if (DeveloperConsoleAPI.bPauseGameplayOnEnable)
+            {
+                if (bIsOpen)
+                {
+                    _timeScale = Time.timeScale;
+                    Time.timeScale = 0.0f;
+                }
+                else
+                {
+                    Time.timeScale = _timeScale;
+                }
+            }
+
             OnToggleConsole();
         }
 

@@ -21,17 +21,17 @@ public class DeveloperConsoleIMGUI : DeveloperConsoleUI
 
     protected override void OnToggleConsole()
     {
-        throw new System.NotImplementedException();
+        cmd = string.Empty;
     }
 
     protected override void AppendLog(ConsoleOutput conop)
     {
-        throw new System.NotImplementedException();
+        _logs += "<color=#" + HexColorMap[conop.type] + ">" + conop.ToString() + "</color>\n";
     }
 
     protected override void OnSubmit(string query)
     {
-        throw new System.NotImplementedException();
+        cmd = "";
     }
 
     internal override void ClearLogs()
@@ -41,32 +41,44 @@ public class DeveloperConsoleIMGUI : DeveloperConsoleUI
 
     private void OnGUI()
     {
-        skin.label.fontSize =
-        skin.textArea.fontSize =
-        skin.textField.fontSize = (Screen.height / 25) / 2;
-
-        GUI.skin = skin;
-
-        GUI.BeginGroup(new Rect(0, 0, Screen.width, Screen.height / 2));
-        GUI.Box(new Rect(0, 0, Screen.width, Screen.height / 2), "");
-
-        scrollPos = GUI.BeginScrollView(new Rect(5, 5, Screen.width - 10, Screen.height / 2 - Screen.height / 20), scrollPos, new Rect(0, 0, 5000, 5000));
-        GUI.Box(new Rect(0, 0, 5000, 5000), _logs);
-        GUI.EndScrollView();
-
-
-        cmd = GUI.TextField(new Rect(Screen.height / 25, Screen.height / 2 - Screen.height / 25, Screen.width, Screen.height / 25), cmd);
-        GUI.Label(new Rect(0, Screen.height / 2 - Screen.height / 25, Screen.height / 25, Screen.height / 25), ">>");
-
-        GUI.EndGroup();
-
-        if(Event.current.type == EventType.KeyUp)
+        if (bIsOpen)
         {
-            if(Event.current.keyCode == KeyCode.Return || Event.current.keyCode == KeyCode.KeypadEnter)
+            skin.box.fontSize =
+            skin.label.fontSize =
+            skin.textArea.fontSize =
+            skin.textField.fontSize = (Screen.height / 25) / 2;
+
+            GUI.skin = skin;
+
+            GUI.BeginGroup(new Rect(0, 0, Screen.width, Screen.height / 2));
+            GUI.Box(new Rect(0, 0, Screen.width, Screen.height / 2), "");
+
+            scrollPos = GUI.BeginScrollView(new Rect(5, 5, Screen.width - 10, Screen.height / 2 - Screen.height / 20), scrollPos, new Rect(0, 0, 5000, 5000));
+            GUI.Box(new Rect(0, 0, 5000, 5000), _logs);
+            GUI.EndScrollView();
+
+
+            cmd = GUI.TextField(new Rect(Screen.height / 25, Screen.height / 2 - Screen.height / 25, Screen.width, Screen.height / 25), cmd);
+            GUI.Label(new Rect(0, Screen.height / 2 - Screen.height / 25, Screen.height / 25, Screen.height / 25), ">>");
+
+            GUI.EndGroup();
+        }
+        if (Event.current.type == EventType.KeyUp)
+        {
+            if (bIsOpen)
             {
-                SubmitQuery(cmd);
+                if (Event.current.keyCode == KeyCode.Return || Event.current.keyCode == KeyCode.KeypadEnter)
+                {
+                    SubmitQuery(cmd);
+                }
+            }
+
+            if (Event.current.keyCode == KeyCode.BackQuote || Event.current.keyCode == KeyCode.Tilde)
+            {
+                ToggleConsole();
             }
         }
+        
     }
 
     

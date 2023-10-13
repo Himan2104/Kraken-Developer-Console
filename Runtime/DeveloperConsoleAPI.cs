@@ -7,7 +7,6 @@ namespace Kraken.DevCon
         private static DeveloperConsole _con = null;
         private static DeveloperConsoleUI _ui = null;
         private static bool _shouldPauseGameplay = true;
-        private static float _timeScale = 1.0f;
 
         /// <summary>
         /// Is the console (rt+ui) initialized?
@@ -50,19 +49,6 @@ namespace Kraken.DevCon
             {
                 Debug.LogError("Console hasn't been created yet!");
                 return;
-            }
-
-            if (_shouldPauseGameplay)
-            {
-                if (_ui.bIsOpen)
-                {
-                    _timeScale = Time.timeScale;
-                    Time.timeScale = 0.0f;
-                }
-                else
-                {
-                    Time.timeScale = _timeScale;
-                }
             }
             
             _ui.ToggleConsole();

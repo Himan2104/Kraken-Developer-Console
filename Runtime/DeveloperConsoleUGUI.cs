@@ -58,6 +58,17 @@ namespace Kraken.DevCon
             }
         }
 
+        private void OnGUI()
+        {
+            if (Event.current.type == EventType.KeyUp)
+            {
+                if (Event.current.keyCode == KeyCode.BackQuote || Event.current.keyCode == KeyCode.Tilde)
+                {
+                    ToggleConsole();
+                }
+            }
+        }
+
         protected override void AppendLog(ConsoleOutput conop)
         {
             _output.text += "<color=#" + HexColorMap[conop.type] + ">" + conop.ToString() + "</color>\n";
