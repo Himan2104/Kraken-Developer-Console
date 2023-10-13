@@ -2,14 +2,35 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System.Linq;
+using UnityEditor.SceneManagement;
+using Codice.ThemeImages;
 
 namespace Kraken.DevCon
 {
     public class DeveloperConsoleEditor : MonoBehaviour
     {
-        [MenuItem("Kraken/Developer Console/Create Console Object")]
-        static void CreateDeveloperConsole()
+        private const string generate_log_file_epkey = "kraken_enable_log_file";
+
+        [MenuItem("Kraken/Developer Console/Create UGUI Console Object", priority = 1)]
+        static void CreateDeveloperConsoleUGUI()
         {
+            if(EditorSceneManager.GetSceneByBuildIndex(0) != EditorSceneManager.GetActiveScene()) 
+            {
+                EditorUtility.DisplayDialog("Incorrect Scene", 
+                    "The current scene is not a initializer scene or the first scene" +
+                    "in your game. Developer Console is a DDOL object and must be initialized " +
+                    "in a scene which loads first i.e., whose build index is 0."," OK");
+                return;
+            }
+
+            if (FindObjectOfType<DeveloperConsoleUI>())
+            {
+                EditorUtility.DisplayDialog("Already exists", "A Developer Console object already exists in this scene." +
+                    "Please remove it before trying again.", "OK");
+                return;
+            }
+
             //main canvas game object
             GameObject console = new GameObject("DeveloperConsole");
 
@@ -197,11 +218,66 @@ namespace Kraken.DevCon
             inputField.fontAsset = text.font;
 
 
-            var devconui = console.AddComponent<DeveloperConsoleUI>();
+            var devconui = console.AddComponent<DeveloperConsoleUGUI>();
             devconui._output = consoleText_textComp;
             devconui._input = inputField;
-            devconui._output_panel = outputPanel;
-            devconui._input_panel = inputBox;
+            devconui._outputPanel = outputPanel;
+            devconui._inputPanel = inputBox;
+        }
+
+        [MenuItem("Kraken/Developer Console/Create IMGUI Console Object", priority = 2)]
+        static void CreateDeveloperConsoleIMGUI()
+        {
+            if (EditorSceneManager.GetSceneByBuildIndex(0) != EditorSceneManager.GetActiveScene())
+            {
+                EditorUtility.DisplayDialog("Incorrect Scene",
+                    "The current scene is not a initializer scene or the first scene" +
+                    "in your game. Developer Console is a DDOL object and must be initialized " +
+                    "in a scene which loads first i.e., whose build index is 0.", " OK");
+                return;
+            }
+
+            if (FindObjectOfType<DeveloperConsoleUI>())
+            {
+                EditorUtility.DisplayDialog("Already exists", "A Developer Console object already exists in this scene." +
+                    "Please remove it before trying again.", "OK");
+                return;
+            }
+            _ = new GameObject("DeveloperConsole").AddComponent<DeveloperConsoleIMGUI>();
+        }
+
+        private static bool bShouldGenerateLogFile
+        {
+            get => EditorPrefs.GetBool(generate_log_file_epkey);
+            set => EditorPrefs.SetBool(generate_log_file_epkey, value);
+        }
+
+        [MenuItem("Kraken/Developer Console/Generate Log File", priority = 20)]
+        static void GenerateLogFile()
+        {
+            bShouldGenerateLogFile = !bShouldGenerateLogFile;
+
+            if (bShouldGenerateLogFile)
+            {
+                PlayerSettings.SetScriptingDefineSymbols(UnityEditor.Build.NamedBuildTarget.Standalone, "KRAKEN_ENABLE_LOG_FILE_GEN");
+            }
+            else
+            {
+                string[] defines;
+                PlayerSettings.GetScriptingDefineSymbols(UnityEditor.Build.NamedBuildTarget.Standalone, out defines);
+                var new_defines = defines.ToList().Where(x => !string.Equals(x, "KRAKEN_ENABLE_LOG_FILE_GEN")).ToArray();
+                if (new_defines.Length > 0)
+                {
+                    PlayerSettings.SetScriptingDefineSymbols(UnityEditor.Build.NamedBuildTarget.Standalone, new_defines);
+                }
+            }
+        }
+        
+        [MenuItem("Kraken/Developer Console/Generate Log File", true)]
+        static bool GenerateLogFileValidate()
+        {
+            Menu.SetChecked("Kraken/Developer Console/Generate Log File", bShouldGenerateLogFile);
+            return true;
         }
     }
 }

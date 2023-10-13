@@ -6,18 +6,26 @@ namespace Kraken.DevCon
     {
         private static DeveloperConsole _con = null;
         private static DeveloperConsoleUI _ui = null;
-
-        private static float _time_scale = 1.0f;
-
-        public static bool bIsInitialized
-        {
-            get { return _con != null; }
-        }
-
-        public static bool bGenerateLogFile = false;
+        private static bool _shouldPauseGameplay = true;
 
         /// <summary>
-        /// Initializes the developer console. Called during awkae() of DeveloperConsoleUI
+        /// Is the console (rt+ui) initialized?
+        /// </summary>
+        public static bool bIsInitialized => _con != null;
+
+        /// <summary>
+        /// Should the game be paused (Time.timescale = 0) when console UI is enabled?
+        /// The timescale before the enable will persist after closing.
+        /// </summary>
+        public static bool bPauseGameplayOnEnable
+        {
+            get => _shouldPauseGameplay;
+            set => _shouldPauseGameplay = value;
+        }
+        
+
+        /// <summary>
+        /// Initializes the developer console. Called during awake() of DeveloperConsoleUI.
         /// </summary>
         internal static DeveloperConsole Initialize(DeveloperConsoleUI dev_con_ui)
         {
@@ -33,7 +41,7 @@ namespace Kraken.DevCon
         }
 
         /// <summary>
-        /// Toggle console (on/off)
+        /// Toggle console (on/off).
         /// </summary>
         public static void ToggleConsole()
         {
@@ -42,16 +50,6 @@ namespace Kraken.DevCon
                 Debug.LogError("Console hasn't been created yet!");
                 return;
             }
-
-            if(!_ui._is_open)
-            {
-                _time_scale = Time.timeScale;
-                Time.timeScale = 0.0f;
-            }
-            else
-            {
-                Time.timeScale = _time_scale;
-            }
             
             _ui.ToggleConsole();
         }
@@ -59,10 +57,10 @@ namespace Kraken.DevCon
         /// <summary>
         /// Sets the buffer size for console logs (default is 100). Also wipes console when called.
         /// </summary>
-        /// <param name="buffer_size">number of logs to store</param>
-        public static void SetConsoleBufferSize(int buffer_size)
+        /// <param name="bufferSize">number of logs to store</param>
+        public static void SetConsoleBufferSize(int bufferSize)
         {
-            if (buffer_size < 0)
+            if (bufferSize < 0)
             {
                 Debug.LogError("Invalid Buffer Size!");
                 return;
@@ -72,8 +70,8 @@ namespace Kraken.DevCon
                 Debug.LogError("Console has not been created!");
                 return;
             }
-            _con._console_logs.Clear();
-            _con._console_log_buffer_size = buffer_size;
+            _con.Logs.Clear();
+            _con.LogBufferSize = bufferSize;
             _ui.RefreshLogs();
         }
 
@@ -84,7 +82,7 @@ namespace Kraken.DevCon
         /// <param name="message">Message as a string</param>
         public static void Log(ConsoleOutput.Type type, string message)
         {
-            _ui.AppendLog(_con.Log(type, message));
+            _con.Log(type, message);
         }
 
         /// <summary>
@@ -123,11 +121,11 @@ namespace Kraken.DevCon
         /// <summary>
         /// Clear all logs. Writes onto the logfile if bGenerateLogFile is set to true.
         /// </summary>
-        public static void Flush()
+        public static async void Flush()
         {
-            _con.UpdateLogFile();
-            _con._console_logs.Clear();
-            _ui._output.text = "KRAKEN DEVELOPER CONSOLE\n.\n.\n.\n.\n.\n.\n.\n\nCreated By - Himanshu Parchand (himan2104@gmail.com)\n.\n.\n.\n.\n.\n.\n\nPlease read the documentation before using and leave a star on the repository if this helped you!\n.\n.\n.\n.\n.\n\n";
+            await _con.Flush();
+            //uncomment to assert dominance XD
+            //_ui._output.text = "KRAKEN DEVELOPER CONSOLE\n.\n.\n.\n.\n.\n.\n.\n\nCreated By - Himanshu Parchand (himan2104@gmail.com)\n.\n.\n.\n.\n.\n.\n\nPlease read the documentation before using and leave a star on the repository if this helped you!\n.\n.\n.\n.\n.\n\n";
         }
     }
 }
