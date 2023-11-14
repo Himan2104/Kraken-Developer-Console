@@ -1,6 +1,6 @@
 {
   "name": "com.kraken.developer-console",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "displayName": "Kraken Developer Console",
   "description": "Developer Console for Unity. Can be used for cheats, debugging, logging and much more.",
   "author": {
@@ -9,6 +9,6 @@
     "url": "https://himan2104.github.io/"
   },
   "dependencies": {
-    "com.unity.textmeshpro" : "3.0.6"	
+    "com.unity.textmeshpro": "3.0.6"
   }
 }
