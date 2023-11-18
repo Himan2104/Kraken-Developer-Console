@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Events;
@@ -125,6 +126,7 @@ namespace Kraken.DevCon
         }
     }
 
+
     /// <summary>
     /// Represents the runtime of dev console
     /// </summary>
@@ -140,7 +142,6 @@ namespace Kraken.DevCon
 #if KRAKEN_ENABLE_LOG_FILE_GEN
         private string _logfilePath = string.Empty;
 #endif
-
         internal int LogBufferSize { get => _consoleLogBufferSize; set => _consoleLogBufferSize = value; }
         internal List<ConsoleOutput> Logs  => _consoleLogs; 
         internal ConsoleLogMetrics Metrics => _metrics;
@@ -155,6 +156,7 @@ namespace Kraken.DevCon
             _logfilePath = Application.persistentDataPath + "/Kraken_DevCon_Log_" + DateTime.Now.ToString("'yyyy'_'MM'_'dd'_'HH'_'mm'_'ss'") + ".log";
             File.Create(_logfilePath).Close();
 #endif
+            Debug.Log("Console Initialized!");
         }
 
         private void InterceptDebugLogs(string condition, string stackTrace, LogType type)

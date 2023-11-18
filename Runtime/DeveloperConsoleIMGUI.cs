@@ -1,12 +1,13 @@
 using Kraken.DevCon;
-using UnityEditor;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
+[assembly : InternalsVisibleTo("Kraken.DeveloperConsole.Editor")]
 public class DeveloperConsoleIMGUI : DeveloperConsoleUI
 {
     private DeveloperConsole _console;
 
-    private GUISkin skin;
+    [HideInInspector][SerializeField] internal GUISkin skin;
 
     string _logs = string.Empty;
 
@@ -16,7 +17,7 @@ public class DeveloperConsoleIMGUI : DeveloperConsoleUI
 
     protected override void Initialize()
     {
-        skin = AssetDatabase.LoadAssetAtPath<GUISkin>("Packages/com.kraken.developer-console/CustomGUISkin.guiskin");
+        //skin = Resources.Load<GUISkin>("Packages/com.kraken.developer-console/Resources/CustomGUISkin.guiskin");
     }
 
     protected override void OnToggleConsole()

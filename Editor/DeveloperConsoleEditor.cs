@@ -1,14 +1,13 @@
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System.Linq;
+using UnityEditor;
 using UnityEditor.SceneManagement;
-using Codice.ThemeImages;
 
 namespace Kraken.DevCon
 {
-    public class DeveloperConsoleEditor : MonoBehaviour
+    public class DeveloperConsoleEditor : Editor
     {
         private const string generate_log_file_epkey = "kraken_enable_log_file";
 
@@ -243,7 +242,8 @@ namespace Kraken.DevCon
                     "Please remove it before trying again.", "OK");
                 return;
             }
-            _ = new GameObject("DeveloperConsole").AddComponent<DeveloperConsoleIMGUI>();
+            var ui = new GameObject("DeveloperConsole").AddComponent<DeveloperConsoleIMGUI>();
+            ui.skin = AssetDatabase.LoadAssetAtPath<GUISkin>("Packages/com.kraken.developer-console/Resources/CustomGUISkin.guiskin");
         }
 
         private static bool bShouldGenerateLogFile
