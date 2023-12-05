@@ -222,6 +222,8 @@ namespace Kraken.DevCon
             devconui._input = inputField;
             devconui._outputPanel = outputPanel;
             devconui._inputPanel = inputBox;
+
+            Undo.RegisterCreatedObjectUndo(console, "Create " + console.name);
         }
 
         [MenuItem("Kraken/Developer Console/Create IMGUI Console Object", priority = 2)]
@@ -244,6 +246,8 @@ namespace Kraken.DevCon
             }
             var ui = new GameObject("DeveloperConsole").AddComponent<DeveloperConsoleIMGUI>();
             ui.skin = AssetDatabase.LoadAssetAtPath<GUISkin>("Packages/com.kraken.developer-console/Resources/CustomGUISkin.guiskin");
+            EditorSceneManager.SaveOpenScenes();
+            Undo.RegisterCreatedObjectUndo(ui, "Create " + ui.name);
         }
 
         private static bool bShouldGenerateLogFile
