@@ -88,11 +88,23 @@ namespace Kraken.DevCon
         /// <summary>
         /// Used to register a new command.
         /// </summary>
-        /// <param name="command">Any child of ConsoleCommand (abstract)</param>
+        /// <typeparam name="T">Sub class of IConsoleCommand</typeparam>
+        /// <param name="command">Name of the command used to call it</param>
         /// <returns>true : success | false : command already exists</returns>
-        public static bool RegisterCommand(ConsoleCommand command)
+        public static bool RegisterCommand<T>(string command) where T : IConsoleCommand, new()
         {
-            return _con.RegisterCommand(command);
+            return _con.RegisterCommand<T>(command);
+        }
+
+        /// <summary>
+        /// Used to deregister a command
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="command"></param>
+        /// <returns></returns>
+        public static bool DeregisterCommand<T>(string command) where T : IConsoleCommand, new()
+        {
+            return _con.DeregisterCommand<T>(command);
         }
 
         /// <summary>

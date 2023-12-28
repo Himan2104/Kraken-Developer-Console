@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Events;
@@ -58,12 +57,9 @@ namespace Kraken.DevCon
 
     }
 
-    [System.Serializable]
-    public abstract class ConsoleCommand
+    public interface IConsoleCommand
     {
-        protected string _command;
-        public string command { get { return _command; } }
-        public abstract ConsoleOutput ProcessCommand(string[] args);
+        public ConsoleOutput ProcessCommand(string[] args);
     }
 
     public struct ConsoleOutput
@@ -133,7 +129,7 @@ namespace Kraken.DevCon
     public class DeveloperConsole
     {
         private Dictionary<string, IConsoleVariable> _cvars = new Dictionary<string, IConsoleVariable>();
-        private List<ConsoleCommand> _commands = new List<ConsoleCommand>();
+        private Dictionary<string, IConsoleCommand> _commands = new Dictionary<string, IConsoleCommand>();
         private int _consoleLogBufferSize = 100;
         private List<ConsoleOutput> _consoleLogs = new List<ConsoleOutput>();
         private ConsoleLogMetrics _metrics = new ConsoleLogMetrics();
@@ -221,15 +217,15 @@ namespace Kraken.DevCon
                 return;
             }
 
-            var cmd = _commands.Find(x => x.command == substrings[0]);
-            if (cmd != null)
+            if (_commands.ContainsKey(substrings[0]))
             {
+                var cmd = _commands[substrings[0]];
                 var args = substrings.Skip(1).ToArray();
                 Log(cmd.ProcessCommand(args));
                 return;
             }
 
-            Log(ConsoleOutput.Type.WRN, "No suitable query or command found for \"" + query + "\"!");
+            Log(ConsoleOutput.Type.WRN, $"No suitable cvar or command found for \"{query}\"!");
         }
 
         internal void Log(ConsoleOutput.Type type, string message)
@@ -249,11 +245,21 @@ namespace Kraken.DevCon
             OnConsoleLogged.Invoke(_consoleLogs.Last());
         }
 
-        internal bool RegisterCommand(ConsoleCommand command)
+        internal bool RegisterCommand<T>(string command) where T : IConsoleCommand, new()
         {
-            if (_commands.Contains(command)) return false;
-            _commands.Add(command);
+            if (_commands.ContainsKey(command)) return false;
+            _commands.Add(command, new T());
             return true;
+        }
+
+        internal bool DeregisterCommand<T>(string command) where T : IConsoleCommand
+        {
+            if (_commands.ContainsKey(command) && _commands[command].GetType() == typeof(T))
+            {
+                _commands.Remove(command);
+                return true;
+            }
+            return false;
         }
 
         internal async Task Flush()

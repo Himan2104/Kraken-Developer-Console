@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
 
 namespace Kraken.DevCon
@@ -16,6 +15,7 @@ namespace Kraken.DevCon
         private Dictionary<ConsoleOutput.Type, string> _hexColorMap = new Dictionary<ConsoleOutput.Type, string>();
         private bool _isOpen = false;
         private float _timeScale = 1.0f;
+        private CursorLockMode _cursorLockMode = CursorLockMode.None;
 
         protected DeveloperConsole Console => _console;
         protected Dictionary<ConsoleOutput.Type, string> HexColorMap => _hexColorMap;
@@ -55,10 +55,13 @@ namespace Kraken.DevCon
                 {
                     _timeScale = Time.timeScale;
                     Time.timeScale = 0.0f;
+                    _cursorLockMode = Cursor.lockState;
+                    Cursor.lockState = CursorLockMode.None;
                 }
                 else
                 {
                     Time.timeScale = _timeScale;
+                    Cursor.lockState = _cursorLockMode;
                 }
             }
 

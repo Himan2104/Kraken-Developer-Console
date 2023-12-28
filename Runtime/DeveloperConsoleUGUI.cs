@@ -1,14 +1,13 @@
-using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-[assembly : InternalsVisibleTo("Kraken.DeveloperConsole.Editor")]
+[assembly: InternalsVisibleTo("Kraken.DeveloperConsole.Editor")]
 
 namespace Kraken.DevCon
-{    
+{
     public class DeveloperConsoleUGUI : DeveloperConsoleUI
     {
         //These references need not be shown in inspector.
