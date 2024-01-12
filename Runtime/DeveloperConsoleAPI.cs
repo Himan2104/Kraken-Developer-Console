@@ -22,7 +22,8 @@ namespace Kraken.DevCon
             get => _shouldPauseGameplay;
             set => _shouldPauseGameplay = value;
         }
-        
+
+        public static bool bIsOpen => _ui ? _ui.bIsOpen : false;
 
         /// <summary>
         /// Initializes the developer console. Called during awake() of DeveloperConsoleUI.
