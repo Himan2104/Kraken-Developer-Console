@@ -9,8 +9,6 @@ namespace Kraken.DevCon
 {
     public class DeveloperConsoleEditor : Editor
     {
-        private const string generate_log_file_epkey = "kraken_enable_log_file";
-
         [MenuItem("Kraken/Developer Console/Create UGUI Console Object", priority = 1)]
         static void CreateDeveloperConsoleUGUI()
         {
@@ -248,40 +246,6 @@ namespace Kraken.DevCon
             ui.skin = AssetDatabase.LoadAssetAtPath<GUISkin>("Packages/com.kraken.developer-console/Resources/CustomGUISkin.guiskin");
             EditorSceneManager.SaveOpenScenes();
             Undo.RegisterCreatedObjectUndo(ui, "Create " + ui.name);
-        }
-
-        private static bool bShouldGenerateLogFile
-        {
-            get => EditorPrefs.GetBool(generate_log_file_epkey);
-            set => EditorPrefs.SetBool(generate_log_file_epkey, value);
-        }
-
-        [MenuItem("Kraken/Developer Console/Generate Log File", priority = 20)]
-        static void GenerateLogFile()
-        {
-            bShouldGenerateLogFile = !bShouldGenerateLogFile;
-
-            if (bShouldGenerateLogFile)
-            {
-                PlayerSettings.SetScriptingDefineSymbols(UnityEditor.Build.NamedBuildTarget.Standalone, "KRAKEN_ENABLE_LOG_FILE_GEN");
-            }
-            else
-            {
-                string[] defines;
-                PlayerSettings.GetScriptingDefineSymbols(UnityEditor.Build.NamedBuildTarget.Standalone, out defines);
-                var new_defines = defines.ToList().Where(x => !string.Equals(x, "KRAKEN_ENABLE_LOG_FILE_GEN")).ToArray();
-                if (new_defines.Length > 0)
-                {
-                    PlayerSettings.SetScriptingDefineSymbols(UnityEditor.Build.NamedBuildTarget.Standalone, new_defines);
-                }
-            }
-        }
-        
-        [MenuItem("Kraken/Developer Console/Generate Log File", true)]
-        static bool GenerateLogFileValidate()
-        {
-            Menu.SetChecked("Kraken/Developer Console/Generate Log File", bShouldGenerateLogFile);
-            return true;
         }
     }
 }
