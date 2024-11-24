@@ -6,39 +6,24 @@ namespace Kraken.DevCon
     {
         private static DeveloperConsole _con = null;
         private static DeveloperConsoleUI _ui = null;
-        private static bool _shouldPauseGameplay = true;
-
-        /// <summary>
-        /// Is the console (rt+ui) initialized?
-        /// </summary>
-        public static bool bIsInitialized => _con != null;
-
-        /// <summary>
-        /// Should the game be paused (Time.timescale = 0) when console UI is enabled?
-        /// The timescale before the enable will persist after closing.
-        /// </summary>
-        public static bool bPauseGameplayOnEnable
-        {
-            get => _shouldPauseGameplay;
-            set => _shouldPauseGameplay = value;
-        }
 
         public static bool bIsOpen => _ui ? _ui.bIsOpen : false;
 
-        /// <summary>
-        /// Initializes the developer console. Called during awake() of DeveloperConsoleUI.
-        /// </summary>
-        internal static DeveloperConsole Initialize(DeveloperConsoleUI dev_con_ui)
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        internal static void Initialize()
         {
-            if(_ui != null && _con != null)
-            {
-                Debug.LogWarning("Attempted to re-initialize Developer Console!");
-                return _con;
-            }
-
+            var settings = Resources.Load<DeveloperConsoleSettings>("DeveloperConsoleSettings");
+            
             _con = new DeveloperConsole();
-            _ui = dev_con_ui;
-            return _con;
+            if (settings.consoleUIMode == DeveloperConsoleSettings.ConsoleUIMode.IMGUI)
+            {
+                _ui = new GameObject("Developer Console").AddComponent<DeveloperConsoleIMGUI>();
+            }
+            else
+            {
+                _ui = new GameObject("DeveloperConsole").AddComponent<DeveloperConsoleUGUI>();
+            }
+            _ui.Initialize(_con, settings);
         }
 
         /// <summary>
@@ -53,27 +38,6 @@ namespace Kraken.DevCon
             }
             
             _ui.ToggleConsole();
-        }
-
-        /// <summary>
-        /// Sets the buffer size for console logs (default is 100). Also wipes console when called.
-        /// </summary>
-        /// <param name="bufferSize">number of logs to store</param>
-        public static void SetConsoleBufferSize(int bufferSize)
-        {
-            if (bufferSize < 0)
-            {
-                Debug.LogError("Invalid Buffer Size!");
-                return;
-            }
-            if(_con == null)
-            {
-                Debug.LogError("Console has not been created!");
-                return;
-            }
-            _con.Logs.Clear();
-            _con.LogBufferSize = bufferSize;
-            _ui.RefreshLogs();
         }
 
         /// <summary>

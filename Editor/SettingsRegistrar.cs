@@ -17,6 +17,8 @@ static class SettingsRegistrar
                 var settings = GetSerializedSettings();
                 EditorGUILayout.PropertyField(settings.FindProperty("_consoleUIMode"), new GUIContent("UI Mode"));
                 EditorGUILayout.PropertyField(settings.FindProperty("_generateLogFile"), new GUIContent("Generate Log File"));
+                EditorGUILayout.PropertyField(settings.FindProperty("_shouldPauseGameplay"), new GUIContent("Should pause gameplay"));
+                EditorGUILayout.PropertyField(settings.FindProperty("_consoleBufferSize"), new GUIContent("Console Buffer Size"));
                 EditorGUILayout.PropertyField(settings.FindProperty("_infoColor"), new GUIContent("Info Color"));
                 EditorGUILayout.PropertyField(settings.FindProperty("_warningColor"), new GUIContent("Warning Color"));
                 EditorGUILayout.PropertyField(settings.FindProperty("_errorColor"), new GUIContent("Error Color"));
@@ -46,9 +48,9 @@ static class SettingsRegistrar
         var settings = AssetDatabase.LoadAssetAtPath<DeveloperConsoleSettings>(DeveloperConsoleSettings.settingsAssetPath);
         if (settings == null)
         {
-            if (!AssetDatabase.IsValidFolder("Assets/Settings"))
+            if (!AssetDatabase.IsValidFolder("Assets/Resources"))
             {
-                AssetDatabase.CreateFolder("Assets", "Settings");
+                AssetDatabase.CreateFolder("Assets", "Resources");
             }
             settings = ScriptableObject.CreateInstance<DeveloperConsoleSettings>();
             AssetDatabase.CreateAsset(settings, DeveloperConsoleSettings.settingsAssetPath);
