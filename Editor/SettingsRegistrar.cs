@@ -31,10 +31,7 @@ static class SettingsRegistrar
                 {
                     PlayerSettings.GetScriptingDefineSymbols(UnityEditor.Build.NamedBuildTarget.Standalone, out var defines);
                     var newDefines = defines.ToList().Where(x => !string.Equals(x, "KRAKEN_ENABLE_LOG_FILE_GEN")).ToArray();
-                    if (newDefines.Length > 0)
-                    {
-                        PlayerSettings.SetScriptingDefineSymbols(UnityEditor.Build.NamedBuildTarget.Standalone, newDefines);
-                    }
+                    PlayerSettings.SetScriptingDefineSymbols(UnityEditor.Build.NamedBuildTarget.Standalone, newDefines);
                 }
             },
             
