@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -18,7 +17,7 @@ namespace Kraken.DevCon
     /// Represents a Console Variable. You need to parse it as you see fit.
     /// Also invokes an event when value is changed. Modify dependent systems using that or perform verifications on that value like limiting it to a range.
     /// </summary>
-    [System.Serializable]
+    [Serializable]
     public class ConsoleVariable<T> : IConsoleVariable
     {
         private T _value;
@@ -269,6 +268,8 @@ namespace Kraken.DevCon
             {
                 await File.AppendAllTextAsync(_logfilePath, log.ToString() + "\n");
             }
+#else
+            await Task.Yield(); //So that the compiler stops bitching about no await in async call.
 #endif
             _consoleLogs.Clear();
         }

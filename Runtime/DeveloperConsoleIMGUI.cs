@@ -15,9 +15,9 @@ public class DeveloperConsoleIMGUI : DeveloperConsoleUI
     private string cmd = "";
     private Vector2 scrollPos;
 
-    protected override void Initialize()
+    protected override void OnInitialize()
     {
-        //skin = Resources.Load<GUISkin>("Packages/com.kraken.developer-console/Resources/CustomGUISkin.guiskin");
+        skin = Resources.Load<GUISkin>("CustomGUISkin");
     }
 
     protected override void OnToggleConsole()
@@ -27,7 +27,7 @@ public class DeveloperConsoleIMGUI : DeveloperConsoleUI
 
     protected override void AppendLog(ConsoleOutput conop)
     {
-        _logs += "<color=#" + HexColorMap[conop.type] + ">" + conop.ToString() + "</color>\n";
+        _logs += "<color=#" + hexColorMap[conop.type] + ">" + conop.ToString() + "</color>\n";
     }
 
     protected override void OnSubmit(string query)
